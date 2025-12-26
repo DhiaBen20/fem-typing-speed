@@ -1,12 +1,19 @@
-import { useState } from "react";
+import { type Dispatch, type SetStateAction } from "react";
 import Select, { SelectItem, SelectSeparator } from "./Select";
 import Toggle from "./Toggle";
 import VerticalDivider from "./VerticalDivider";
 
-export default function RoundControls() {
-    const [difficulty, setDifficulty] = useState("easy");
-    const [mode, setMode] = useState("timed");
-
+export default function RoundControls({
+    difficulty,
+    setDifficulty,
+    mode,
+    setMode,
+}: {
+    difficulty: string;
+    mode: string;
+    setDifficulty: Dispatch<SetStateAction<string>>;
+    setMode: Dispatch<SetStateAction<string>>;
+}) {
     return (
         <>
             <div className="flex items-center gap-4 max-sm:hidden">

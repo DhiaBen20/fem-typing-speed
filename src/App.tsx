@@ -1,8 +1,15 @@
+import { useState } from "react";
 import Container from "./commponents/Container";
 import Header from "./commponents/Header";
 import LiveStats from "./commponents/LiveStats";
 import RoundControls from "./commponents/RoundControlls";
+import data from "./data.json";
+import TextDisplay from "./commponents/TextDisplay";
+
 function App() {
+    const [difficulty, setDifficulty] = useState("easy");
+    const [mode, setMode] = useState("timed");
+
     return (
         <>
             <Header />
@@ -12,11 +19,18 @@ function App() {
                     <Container>
                         <div className="flex flex-col gap-y-5 xl:flex-row xl:justify-between xl:gap-y-0">
                             <LiveStats />
-                            <RoundControls />
+                            <RoundControls
+                                difficulty={difficulty}
+                                setDifficulty={setDifficulty}
+                                mode={mode}
+                                setMode={setMode}
+                            />
                         </div>
-                        <div className="pb-4 border-b border-[#262626]"/>
+                        <div className="border-b border-[#262626] pb-4" />
                     </Container>
                 </header>
+
+                <TextDisplay text={data["hard"][5].text} />
             </main>
         </>
     );
