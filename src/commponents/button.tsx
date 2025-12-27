@@ -12,6 +12,7 @@ const classes = {
         "border border-[#717178] px-2.5 py-1.5 text-white focus-visible:border-white focus-visible:text-white rounded-lg hover:border-[#4CA6FF] hover:text-[#4CA6FF]",
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function buttonClasses(variant: keyof typeof classes = "parimary") {
     return `${defaultClasses} ${classes[variant]}`;
 }
