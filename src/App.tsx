@@ -1,36 +1,20 @@
-import { useState } from "react";
-import Container from "./commponents/Container";
 import Header from "./commponents/Header";
-import LiveStats from "./commponents/LiveStats";
-import RoundControls from "./commponents/RoundControlls";
+import { useRoundContext } from "./commponents/RoundProvider";
+import TypingPlayground from "./commponents/TypingPlayground";
 import data from "./data.json";
-import TextDisplay from "./commponents/TextDisplay";
 
 function App() {
-    const [difficulty, setDifficulty] = useState("easy");
-    const [mode, setMode] = useState("timed");
+    const { status } = useRoundContext();
 
     return (
         <>
             <Header />
-
             <main className="mt-16">
-                <header>
-                    <Container>
-                        <div className="flex flex-col gap-y-5 xl:flex-row xl:justify-between xl:gap-y-0">
-                            <LiveStats />
-                            <RoundControls
-                                difficulty={difficulty}
-                                setDifficulty={setDifficulty}
-                                mode={mode}
-                                setMode={setMode}
-                            />
-                        </div>
-                        <div className="border-b border-[#262626] pb-4" />
-                    </Container>
-                </header>
-
-                <TextDisplay text={data["hard"][5].text} />
+                {status !== "completed" ? (
+                    <TypingPlayground text={data["easy"][5].text} />
+                ) : (
+                    "results"
+                )}
             </main>
         </>
     );
