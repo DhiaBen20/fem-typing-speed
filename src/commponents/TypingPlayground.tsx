@@ -14,19 +14,19 @@ import { useRoundContext } from "./RoundProvider";
 
 function HiddenInput({
     ref,
-    text,
     input,
     setInput,
     onFinish,
     onMistake,
     ...rest
 }: {
-    text: string;
     input: string;
     setInput: (value: string) => void;
     onFinish: () => void;
     onMistake: () => void;
 } & ComponentProps<"input">) {
+    const { practiceText } = useRoundContext();
+
     return (
         <input
             type="text"
@@ -44,14 +44,14 @@ function HiddenInput({
                 const nextValue = e.target.value;
 
                 // dont accept user input when he finish the text
-                if (nextValue.length > text.length) return;
+                if (nextValue.length > practiceText.length) return;
 
                 // dont count mistakes when user removes input
                 if (nextValue.length < input.length) return setInput(nextValue);
 
                 const i = e.target.value.length - 1;
-                if (text[i] !== e.target.value[i]) onMistake();
-                if (nextValue.length === text.length) onFinish();
+                if (practiceText[i] !== e.target.value[i]) onMistake();
+                if (nextValue.length === practiceText.length) onFinish();
                 setInput(e.target.value);
             }}
         />
@@ -86,14 +86,14 @@ function Character({
 }
 
 function TextDisplay({
-    text,
     input,
     isFocused,
 }: {
-    text: string;
     input: string;
     isFocused: boolean;
 }) {
+    const { practiceText } = useRoundContext();
+
     return (
         <div
             className={clsx(
@@ -103,7 +103,7 @@ function TextDisplay({
                 },
             )}
         >
-            {text.split("").map((c, i) => (
+            {practiceText.split("").map((c, i) => (
                 <Character
                     key={i}
                     isRemaining={i > input.length}
@@ -148,7 +148,7 @@ function Overlay({
     );
 }
 
-export default function TypingPlayground({ text }: { text: string }) {
+export default function TypingPlayground() {
     const { input, dispatch } = useRoundContext();
     const inputRef = useRef<HTMLInputElement>(null);
     const [isFocused, setIsFocused] = useState(false);
@@ -169,11 +169,7 @@ export default function TypingPlayground({ text }: { text: string }) {
                 className="mt-8"
             >
                 <div className={"relative"}>
-                    <TextDisplay
-                        isFocused={isFocused}
-                        input={input}
-                        text={text}
-                    />
+                    <TextDisplay isFocused={isFocused} input={input} />
                     {!isFocused && (
                         <Overlay
                             inputRef={inputRef}
@@ -184,7 +180,6 @@ export default function TypingPlayground({ text }: { text: string }) {
 
                 <HiddenInput
                     ref={inputRef}
-                    text={text}
                     input={input}
                     setInput={(input: string) =>
                         dispatch({

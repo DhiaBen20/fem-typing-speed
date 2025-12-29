@@ -30,11 +30,17 @@ function Accuracy() {
         (correctCharactersCount(input, mistakesCount) / input.length) * 100,
     );
 
-    return <InfoItem name="Accuracy" value={(accuracy || 0) + "%"} />;
+    return (
+        <InfoItem
+            name="Accuracy"
+            color={accuracy === 100 || isNaN(accuracy) ? "white" : "red"}
+            value={(isNaN(accuracy) ? 100 : accuracy) + "%"}
+        />
+    );
 }
 
 function Time() {
-    const { status } = useRoundContext();
+    const { status, mode, dispatch } = useRoundContext();
     const [time, setTime] = useState(0);
     const timerRef = useRef<number | undefined>(undefined);
 
@@ -50,11 +56,27 @@ function Time() {
         return () => clearInterval(timerRef.current);
     }, [status]);
 
+    useEffect(() => {
+        if (mode === "passage") return;
+
+        if (time >= 60) {
+            dispatch({ type: "finish" });
+        }
+    }, [mode, time, dispatch]);
+
     return (
         <InfoItem
             name="Time"
-            value={status !== "not_started" ? formatDuration(time) : "0:60"}
-            color="yellow"
+            value={
+                status === "not_started"
+                    ? mode === "passage"
+                        ? "0:00"
+                        : "1:00"
+                    : mode === "passage"
+                      ? formatDuration(time)
+                      : formatDuration(60 - time)
+            }
+            color={status === "not_started" ? "white" : "yellow"}
         />
     );
 }

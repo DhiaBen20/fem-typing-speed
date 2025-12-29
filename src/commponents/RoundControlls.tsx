@@ -1,75 +1,70 @@
-import { type Dispatch, type SetStateAction } from "react";
+import { useRoundContext } from "./RoundProvider";
 import Select, { SelectItem, SelectSeparator } from "./Select";
 import Toggle from "./Toggle";
 import VerticalDivider from "./VerticalDivider";
 
-export default function RoundControls({
-    difficulty,
-    setDifficulty,
-    mode,
-    setMode,
-}: {
-    difficulty: string;
-    mode: string;
-    setDifficulty: Dispatch<SetStateAction<string>>;
-    setMode: Dispatch<SetStateAction<string>>;
-}) {
+export default function RoundControls() {
+    const { difficulty, mode, status, dispatch } = useRoundContext();
+    const disableControls = status !== "not_started";
+
     return (
         <>
             <div className="flex items-center gap-4 max-sm:hidden">
                 <div className="inline-flex items-center gap-1.5">
                     <div className="text-[#949497]">Difficulty:</div>
-                    <Toggle
-                        onPressedChange={(p) =>
-                            setDifficulty((v) => (p ? "easy" : v))
-                        }
-                        pressed={"easy" === difficulty}
-                    >
-                        Easy
-                    </Toggle>
-                    <Toggle
-                        onPressedChange={(p) =>
-                            setDifficulty((v) => (p ? "medium" : v))
-                        }
-                        pressed={"medium" === difficulty}
-                    >
-                        Medium
-                    </Toggle>
-                    <Toggle
-                        onPressedChange={(p) =>
-                            setDifficulty((v) => (p ? "hard" : v))
-                        }
-                        pressed={"hard" === difficulty}
-                    >
-                        Hard
-                    </Toggle>
+                    {(["easy", "medium", "hard"] as const).map((level) => (
+                        <Toggle
+                            disabled={disableControls}
+                            key={level}
+                            onPressedChange={(p) => {
+                                if (p) {
+                                    dispatch({
+                                        type: "set_difficulty",
+                                        payload: { value: level },
+                                    });
+                                }
+                            }}
+                            pressed={level === difficulty}
+                        >
+                            {level.charAt(0).toUpperCase() + level.slice(1)}
+                        </Toggle>
+                    ))}
                 </div>
                 <VerticalDivider />
                 <div className="inline-flex items-center gap-1.5">
                     <div className="text-[#949497]">Mode:</div>
-                    <Toggle
-                        onPressedChange={(p) =>
-                            setMode((v) => (p ? "timed" : v))
-                        }
-                        pressed={"timed" === mode}
-                    >
-                        Timed (60s)
-                    </Toggle>
-                    <Toggle
-                        onPressedChange={(p) =>
-                            setMode((v) => (p ? "passage" : v))
-                        }
-                        pressed={"passage" === mode}
-                    >
-                        Passage
-                    </Toggle>
+                    {(["timed", "passage"] as const).map((modeOption) => (
+                        <Toggle
+                            disabled={disableControls}
+                            key={modeOption}
+                            onPressedChange={(p) => {
+                                if (p) {
+                                    dispatch({
+                                        type: "set_mode",
+                                        payload: { value: modeOption },
+                                    });
+                                }
+                            }}
+                            pressed={modeOption === mode}
+                        >
+                            {modeOption.charAt(0).toUpperCase() +
+                                modeOption.slice(1)}
+                            {modeOption === "timed" ? " (60s)" : ""}
+                        </Toggle>
+                    ))}
                 </div>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5 sm:hidden">
                 <Select
+                    disabled={disableControls}
                     value={difficulty}
-                    onValueChange={(v) => setDifficulty(v)}
+                    onValueChange={(v) =>
+                        dispatch({
+                            type: "set_difficulty",
+                            payload: { value: v as typeof difficulty },
+                        })
+                    }
                 >
                     <SelectItem value="easy">Easy</SelectItem>
                     <SelectSeparator />
@@ -78,7 +73,16 @@ export default function RoundControls({
                     <SelectItem value="hard">Hard</SelectItem>
                 </Select>
 
-                <Select value={mode} onValueChange={(v) => setMode(v)}>
+                <Select
+                    disabled={disableControls}
+                    value={mode}
+                    onValueChange={(v) =>
+                        dispatch({
+                            type: "set_mode",
+                            payload: { value: v as typeof mode },
+                        })
+                    }
+                >
                     <SelectItem value="timed">Timed (60s)</SelectItem>
                     <SelectSeparator />
                     <SelectItem value="passage">Passage</SelectItem>

@@ -2,20 +2,32 @@ import * as RadixSelect from "@radix-ui/react-select";
 import { type ComponentProps, type ReactNode } from "react";
 import { buttonClasses } from "./button";
 import chevron from "../assets/images/icon-down-arrow.svg";
+import clsx from "clsx";
 
 export default function Select({
     children,
     value,
     onValueChange,
+    disabled = false,
     ...rest
 }: {
     children: ReactNode;
     value?: string;
+    disabled?: boolean;
     onValueChange?: (v: string) => void;
 } & ComponentProps<(typeof RadixSelect)["Content"]>) {
     return (
-        <RadixSelect.Root value={value} onValueChange={onValueChange}>
-            <RadixSelect.Trigger className={buttonClasses("outline")}>
+        <RadixSelect.Root
+            disabled={disabled}
+            value={value}
+            onValueChange={onValueChange}
+        >
+            <RadixSelect.Trigger
+                className={clsx(
+                    buttonClasses("outline"),
+                    "data-disabled:cursor-not-allowed data-disabled:border-[#717178] data-disabled:text-white data-[state=on]:border-[#4CA6FF] data-[state=on]:text-[#4CA6FF]",
+                )}
+            >
                 <RadixSelect.Value placeholder="select item" />
                 <RadixSelect.Icon>
                     <img src={chevron} />
