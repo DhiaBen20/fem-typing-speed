@@ -1,4 +1,5 @@
 import Header from "./commponents/Header";
+import Results from "./commponents/Results";
 import { useRoundContext } from "./commponents/RoundProvider";
 import TypingPlayground from "./commponents/TypingPlayground";
 
@@ -9,7 +10,7 @@ function App() {
         <>
             <Header />
             <main className="mt-16">
-                {status !== "completed" ? <TypingPlayground /> : "results"}
+                {status !== "completed" ? <TypingPlayground /> : <Results />}
             </main>
         </>
     );

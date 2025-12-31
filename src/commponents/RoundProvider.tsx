@@ -17,6 +17,7 @@ type State = {
     mistakesCount: number;
     difficulty: "easy" | "medium" | "hard";
     mode: "timed" | "passage";
+    bestWPM: null | number;
 };
 
 type Action =
@@ -27,7 +28,11 @@ type Action =
     | { type: "increment_mistake" }
     | { type: "set_difficulty"; payload: { value: State["difficulty"] } }
     | { type: "set_mode"; payload: { value: State["mode"] } }
-    | { type: "set_practice_text"; payload: { value: State["practiceText"] } };
+    | { type: "set_practice_text"; payload: { value: State["practiceText"] } }
+    | {
+          type: "set_best_wpm";
+          payload: { value: NonNullable<State["bestWPM"]> };
+      };
 
 const RoundContext = createContext<
     (State & { dispatch: ActionDispatch<[Action]> }) | null
@@ -78,6 +83,11 @@ function reducer(state: State, action: Action): State {
                 ...state,
                 practiceText: action.payload.value,
             };
+        case "set_best_wpm":
+            return {
+                ...state,
+                bestWPM: action.payload.value,
+            };
     }
 }
 
@@ -89,9 +99,21 @@ export default function RoundProvider({ children }: { children: ReactNode }) {
         resumedAt: null,
         duration: 0,
         mistakesCount: 0,
+        bestWPM: null,
         mode: "timed",
         difficulty: "easy",
     });
+
+    useEffect(() => {
+        const bestWPM = localStorage.getItem("bestWPM");
+
+        if (bestWPM) {
+            dispatch({
+                type: "set_best_wpm",
+                payload: { value: JSON.parse(bestWPM) },
+            });
+        }
+    }, []);
 
     useEffect(() => {
         dispatch({

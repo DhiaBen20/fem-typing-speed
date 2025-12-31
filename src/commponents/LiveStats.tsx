@@ -1,24 +1,25 @@
 import { useEffect, useRef, useState } from "react";
-import {
-    calculateRealDuration,
-    correctCharactersCount,
-    correctWordsCount,
-    formatDuration,
-} from "../helpers";
-import InfoItem from "./InfoItem";
 import { useRoundContext } from "./RoundProvider";
 import VerticalDivider from "./VerticalDivider";
+import {
+    calculateAccuracy,
+    calculateSpeed,
+    formatDuration,
+    liveDurationInSeconds,
+} from "../helpers";
+import InfoItem from "./InfoItem";
 
 function Speed() {
     const { input, mistakesCount, duration, resumedAt } = useRoundContext();
 
-    const correctWords = correctWordsCount(input, mistakesCount);
-    const durationInMins = calculateRealDuration(duration, resumedAt) / 60;
-
     return (
         <InfoItem
             name="WPM"
-            value={Math.round(correctWords / durationInMins) || 0}
+            value={calculateSpeed(
+                input,
+                mistakesCount,
+                liveDurationInSeconds(duration, resumedAt),
+            )}
         />
     );
 }
@@ -26,15 +27,13 @@ function Speed() {
 function Accuracy() {
     const { input, mistakesCount } = useRoundContext();
 
-    const accuracy = Math.round(
-        (correctCharactersCount(input, mistakesCount) / input.length) * 100,
-    );
+    const accuracy = calculateAccuracy(input, mistakesCount);
 
     return (
         <InfoItem
             name="Accuracy"
-            color={accuracy === 100 || isNaN(accuracy) ? "white" : "red"}
-            value={(isNaN(accuracy) ? 100 : accuracy) + "%"}
+            color={accuracy === 100 ? "white" : "red"}
+            value={accuracy + "%"}
         />
     );
 }
