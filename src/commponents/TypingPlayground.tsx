@@ -9,6 +9,7 @@ import {
 } from "react";
 import Button from "./button";
 import Container from "./Container";
+import PlaygroundFooter from "./PlaygroundFooter";
 import PlaygroundHeader from "./PlaygroundHeader";
 import { useRoundContext } from "./RoundProvider";
 
@@ -46,13 +47,14 @@ function HiddenInput({
                 // dont accept user input when he finish the text
                 if (nextValue.length > practiceText.length) return;
 
+                setInput(nextValue);
+
                 // dont count mistakes when user removes input
-                if (nextValue.length < input.length) return setInput(nextValue);
+                if (nextValue.length < input.length) return;
 
                 const i = e.target.value.length - 1;
                 if (practiceText[i] !== e.target.value[i]) onMistake();
                 if (nextValue.length === practiceText.length) onFinish();
-                setInput(e.target.value);
             }}
         />
     );
@@ -124,6 +126,8 @@ function Overlay({
     inputRef: RefObject<HTMLInputElement | null>;
     setIsFocused: Dispatch<SetStateAction<boolean>>;
 }) {
+    const { status } = useRoundContext();
+
     return (
         <div
             onPointerDown={() => {
@@ -139,7 +143,7 @@ function Overlay({
                     }
                 }}
             >
-                Start Typing test
+                {status === "not_started" ? "Start Typing test" : "Continue Typing test"}
             </Button>
             <p className="text-xl font-semibold text-white">
                 Or click the text and start typing
@@ -201,6 +205,8 @@ export default function TypingPlayground() {
                     }}
                 />
             </Container>
+
+            <PlaygroundFooter />
         </>
     );
 }

@@ -12,6 +12,7 @@ import {
 import Button from "./button";
 import Container from "./Container";
 import { useRoundContext } from "./RoundProvider";
+import confetti from "canvas-confetti";
 
 export default function Results() {
     const { input, mistakesCount, duration, bestWPM, dispatch } =
@@ -29,9 +30,48 @@ export default function Results() {
     useEffect(() => {
         if (bestWPM && speed <= bestWPM) return;
 
-        localStorage.setItem("bestWPM", speed.toString());
         dispatch({ type: "set_best_wpm", payload: { value: speed } });
+
+        localStorage.setItem("bestWPM", speed.toString());
     }, [bestWPM, dispatch, speed]);
+
+    useEffect(() => {
+        if (!lastBestSpeed || speed <= lastBestSpeed) return;
+
+        const duration = 3 * 1000;
+        const animationEnd = Date.now() + duration;
+        const defaults = {
+            startVelocity: 30,
+            spread: 360,
+            ticks: 100,
+            zIndex: 0,
+        };
+
+        function randomInRange(min: number, max: number) {
+            return Math.random() * (max - min) + min;
+        }
+
+        const interval = setInterval(function () {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 40 * (timeLeft / duration);
+            // since particles fall down, start a bit higher than random
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 },
+            });
+            confetti({
+                ...defaults,
+                particleCount,
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 },
+            });
+        }, 250);
+    }, [lastBestSpeed, speed]);
 
     return (
         <Container className="flex flex-col items-center justify-center gap-8">
@@ -57,7 +97,7 @@ export default function Results() {
                           : "Solid run. Keep pushing to beat your high score."}
                 </p>
             </div>
-            <div className="flex flex-col gap-5 md:flex-row self-stretch md:self-center">
+            <div className="flex flex-col gap-5 self-stretch md:flex-row md:self-center">
                 <div className="space-y-3 rounded-lg border border-[#3A3A3A] px-6 py-4 md:w-40">
                     <div className="text-xl text-[#949497]">WPM:</div>
                     <div className="text-2xl font-bold text-white">{speed}</div>
@@ -84,8 +124,13 @@ export default function Results() {
                     </div>
                 </div>
             </div>
-            <Button variant="secondary">
-                Go again
+            <Button
+                variant="secondary"
+                onClick={() => dispatch({ type: "start_again" })}
+            >
+                {lastBestSpeed && speed > lastBestSpeed
+                    ? "Beat this score"
+                    : "go again"}
                 <img src={tryAgain} alt="" className="brightness-0" />
             </Button>
         </Container>

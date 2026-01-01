@@ -32,7 +32,8 @@ type Action =
     | {
           type: "set_best_wpm";
           payload: { value: NonNullable<State["bestWPM"]> };
-      };
+      }
+    | { type: "start_again" };
 
 const RoundContext = createContext<
     (State & { dispatch: ActionDispatch<[Action]> }) | null
@@ -87,6 +88,15 @@ function reducer(state: State, action: Action): State {
             return {
                 ...state,
                 bestWPM: action.payload.value,
+            };
+        case "start_again":
+            return {
+                ...state,
+                status: "not_started",
+                input: "",
+                mistakesCount: 0,
+                duration: 0,
+                resumedAt: null,
             };
     }
 }

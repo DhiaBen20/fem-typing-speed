@@ -1,6 +1,4 @@
-import { useEffect, useRef, useState } from "react";
-import { useRoundContext } from "./RoundProvider";
-import VerticalDivider from "./VerticalDivider";
+import { useEffect, useState } from "react";
 import {
     calculateAccuracy,
     calculateSpeed,
@@ -8,6 +6,8 @@ import {
     liveDurationInSeconds,
 } from "../helpers";
 import InfoItem from "./InfoItem";
+import { useRoundContext } from "./RoundProvider";
+import VerticalDivider from "./VerticalDivider";
 
 function Speed() {
     const { input, mistakesCount, duration, resumedAt } = useRoundContext();
@@ -39,29 +39,31 @@ function Accuracy() {
 }
 
 function Time() {
-    const { status, mode, dispatch } = useRoundContext();
-    const [time, setTime] = useState(0);
-    const timerRef = useRef<number | undefined>(undefined);
+    const { status, mode, duration, resumedAt, dispatch } = useRoundContext();
+    const [, forceUpdate] = useState(0);
 
+    const liveDuration = liveDurationInSeconds(duration, resumedAt);
+    
     useEffect(() => {
+        if (resumedAt === null) return;
+        let interval: number;
+
         if (status === "running") {
-            timerRef.current = setInterval(() => {
-                setTime((prev) => prev + 1);
-            }, 1000);
-        } else {
-            clearInterval(timerRef.current);
+            interval = setInterval(() => {
+                forceUpdate((n) => n + 1);
+            }, 500);
         }
 
-        return () => clearInterval(timerRef.current);
-    }, [status]);
+        return () => clearInterval(interval);
+    }, [resumedAt, status]);
 
     useEffect(() => {
         if (mode === "passage") return;
 
-        if (time >= 60) {
+        if (liveDuration >= 60) {
             dispatch({ type: "finish" });
         }
-    }, [mode, time, dispatch]);
+    }, [mode, liveDuration, dispatch]);
 
     return (
         <InfoItem
@@ -72,8 +74,8 @@ function Time() {
                         ? "0:00"
                         : "1:00"
                     : mode === "passage"
-                      ? formatDuration(time)
-                      : formatDuration(60 - time)
+                      ? formatDuration(liveDuration)
+                      : formatDuration(60 - liveDuration)
             }
             color={status === "not_started" ? "white" : "yellow"}
         />
